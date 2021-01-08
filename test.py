@@ -26,3 +26,7 @@ if __name__ == "__main__":
     print(tag[1][1][1][1])
     comb=tuple(((0,1,2,3),(0,1,4,5),(0,1,6,7),(2,3,4,5),(2,3,6,7),(4,5,6,7)))
     print(comb[1][2])
+    l1 = ['b','c','d','b','c','a','a']
+    l2 = list(set(l1))
+    l2.sort(key=l1.index)
+    print(l2)
