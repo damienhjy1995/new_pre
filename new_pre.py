@@ -3,6 +3,8 @@ import re
 import numpy as np
 from numpy.linalg import *
 from itertools import combinations
+from mpi4py import MPI
+from collections import defaultdict
 import os
 
 def coplan(a,b,c,d):#function to judge if the 4 points are coplan(not used)
@@ -15,6 +17,11 @@ def coplan(a,b,c,d):#function to judge if the 4 points are coplan(not used)
     result=det(mat)
     return result
 
+#comm = MPI.COMM_WORLD
+#size = comm.Get_size()
+#rank = comm.Get_rank()
+#size=int(size)
+#print(rank,1)
 start = time.process_time()
 nnode=1
 ncell=1
@@ -26,7 +33,6 @@ curdir=curdir.strip('new_pre')
 #print(curdir)
 newdir=curdir+'data'
 os.chdir(newdir)
-#print(newdir)
 
 with open('input.txt','r') as g:
     g.readline()
@@ -79,8 +85,8 @@ with open(filename,'r') as f:
             num_nodes=int(num_nodes.strip(','))
             num_cells=line[1].strip('Elements=')
             num_cells=int(num_cells.strip(','))
-            print(num_nodes)
-            print(num_cells)
+            #print(num_nodes)
+            #print(num_cells)
             node_info=np.zeros((num_nodes+1,6))
             cell_node=np.zeros((num_cells+1,cell_num_node),dtype=np.int)
 
@@ -95,7 +101,7 @@ with open(filename,'r') as f:
                 cell_node[ncell][i-1]=int(line[i-1])#cell_node connectivity
             ncell=ncell+1
 
-
+#print(1)
 cell_info=np.zeros((num_cells+1,6))
 for i in range(1,num_cells+1):
     for j in range(cell_num_node):
@@ -109,6 +115,7 @@ cell_info[:][:]=cell_info[:][:]/cell_num_node
 
 face_info=np.zeros((face_max,face_type),dtype=np.int)
 face_cell=np.zeros((face_max,2),dtype=np.int)
+tag_=set()
 tag=[]
 
 #h=np.array([0,1,2,3,4,5,6,7],dtype=np.int)
@@ -117,19 +124,67 @@ if cell_type == 6:
 elif cell_type == 4:
     comb=tuple(((0,1,2),(0,1,3),(0,2,3),(1,2,3)))
 
-k=1
+#print(1)
+'''
+cell_d=np.zeros((size),dtype=np.int)
+cell_f=np.zeros((size),dtype=np.int)
+nelem_p=num_cells
+nchunck_p=nelem_p//size
+nreste_p=nelem_p-nchunck_p*size
+nreste_p=int(nreste_p)
+cell_d[0]=1
+if nchunck_p == 0:
+    nchunck_p=1
+    cell_f[0]=nchunck_p
+    for i in range(1,nreste_p):
+        cell_d[i]=cell_f[i-1]+1
+        cell_f[i]=cell_d[i]+nchunck_p-1
+    size=nreste_p
+else:
+    cell_f[0]=nchunck_p
+    for i in range(1,size-nreste_p):
+        cell_d[i]=cell_f[i-1]+1
+        cell_f[i]=cell_d[i]+nchunck_p-1
+    for i in range(size-nreste_p,size):
+        cell_d[i]=cell_f[i-1]+1
+        cell_f[i]=cell_d[i]+nchunck_p
+'''
+#print(rank,1)
+d = defaultdict(list)
 for i in range(1,num_cells+1):
     for j in comb:
         if cell_type == 6:
             s=frozenset([cell_node[i][j[0]],cell_node[i][j[1]],cell_node[i][j[2]],cell_node[i][j[3]]])
-            tag.append(s)
+            tag_.add(s)
+            d[s].append(i)
         elif cell_type == 4:
             s=frozenset([cell_node[i][j[0]],cell_node[i][j[1]],cell_node[i][j[2]]])
-            tag.append(s)
+            tag_.add(s)
+            d[s].append(i)
+#comm.Barrier()
+#print(rank,1)
+#print(tag_)
+#tag = comm.gather(tag_, root=0)
+#print(rank,1)
+#tag[rank]=comm.bcast(tag[rank],root=rank)
+'''
+if rank == 0:
+    tag3=sum(tag,[])
+    print(len(tag3))
+'''
+#print(d)
 
-tag2=list(set(tag))
-tag2.sort(key=tag.index)
+#if rank == 0:
+#tag2=list(set(tag3))
+#tag2.sort(key=tag3.index)
+#print(len(tag2))
 #print(tag2[1])
+tag2=list(tag_)
+for i in tag2:
+    if len(d[i]) == 1:
+        d[i].append(0)
+
+#print(d)
 
 for i in range(len(tag2)):
     if cell_type == 6:
@@ -138,11 +193,16 @@ for i in range(len(tag2)):
         face_info[i+1][1]=face[1]
         face_info[i+1][2]=face[2]
         face_info[i+1][3]=face[3]
+        face_cell[i+1][0]=d[tag2[i]][0]
+        face_cell[i+1][1]=d[tag2[i]][1]
     elif cell_type == 4:
         face=list(tag2[i])
         face_info[i+1][0]=face[0]
         face_info[i+1][1]=face[1]
         face_info[i+1][2]=face[2]
+        face_cell[i+1][0]=d[tag2[i]][0]
+        face_cell[i+1][1]=d[tag2[i]][1]
+
 
 '''
 for i in range(1,num_cells+1):
@@ -176,6 +236,8 @@ for i in range(1,num_cells+1):
         #print(len(tag))
 #print(tag)
 '''
+
+#if rank == 0:
 meshdim=3
 with open('1230.msh','w') as c:
     print(meshdim,file=c)
@@ -183,13 +245,13 @@ with open('1230.msh','w') as c:
     for i in range(1,num_nodes+1):
         print(node_info[i][0],node_info[i][1],node_info[i][2],file=c)
     print(num_cells,file=c)
-    print(k-1,file=c)
-    for i in range(1,k):
+    print(len(tag2),file=c)
+    for i in range(1,len(tag2)+1):
         print(' '.join(map(str,face_info[i,:])),' '.join(map(str,face_cell[i,:])),file=c)
 
 with open('INFILES/internal_field/temp.in','w') as d:
     for i in range(1,num_cells+1):
-        print(cell_info[i][3],file=d)
+        print(i,cell_info[i][3],file=d)
 
 with open('INFILES/internal_field/concentration_co2.in','w') as e:
     for i in range(1,num_cells+1):
@@ -199,5 +261,7 @@ with open('INFILES/internal_field/concentration_h2o.in','w') as f:
     for i in range(1,num_cells+1):
         print(i,cell_info[i][5],file=f)
 
+
 end=time.process_time()
+#if rank == 0:
 print(' Data conversion time:',end-start)

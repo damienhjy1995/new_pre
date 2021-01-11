@@ -30,3 +30,8 @@ if __name__ == "__main__":
     l2 = list(set(l1))
     l2.sort(key=l1.index)
     print(l2)
+    cell_d=np.zeros((1),dtype=np.int)
+    print(cell_d[0])
+    mulArrays = [[1,2,3],[3,5,6],[7,8,9]]
+    print(sum(mulArrays,[])) #[1, 2, 3, 4, 5, 6, 7, 8, 9]
+    print(5/2)
