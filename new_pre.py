@@ -3,7 +3,7 @@ import re
 import numpy as np
 from numpy.linalg import *
 from itertools import combinations
-from mpi4py import MPI
+#from mpi4py import MPI
 from collections import defaultdict
 import os
 
@@ -36,8 +36,8 @@ os.chdir(newdir)
 
 with open('input.txt','r') as g:
     g.readline()
-    filename = g.readline()
-    filename = filename.strip('\n')#filename
+    filepath = g.readline()
+    filepath = filepath.strip('\n')#filepath
     g.readline()
     cell_type = g.readline()
     cell_type = cell_type.strip('\n')
@@ -50,7 +50,7 @@ elif(cell_type==4):
     face_type=3
     cell_num_node=4
 
-with open(filename,'r') as f:
+with open(filepath,'r') as f:
     count = len(f.readlines())  #total number of lines in the mesh file
     #print(count)
     f.seek(0)   #return to the top of file
@@ -239,7 +239,7 @@ for i in range(1,num_cells+1):
 
 #if rank == 0:
 meshdim=3
-with open('1230.msh','w') as c:
+with open('1.msh','w') as c:
     print(meshdim,file=c)
     print(num_nodes,file=c)
     for i in range(1,num_nodes+1):

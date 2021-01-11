@@ -1,4 +1,0 @@
-#filename
-1230.dat
-#meshtype
-6
