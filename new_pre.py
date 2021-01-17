@@ -92,7 +92,6 @@ cell_info[:][:]=cell_info[:][:]/cell_num_node
 face_info=np.zeros((face_max,face_type),dtype=np.int)#face node connectivity
 face_cell=np.zeros((face_max,2),dtype=np.int)#neighbour cell
 tag_=set()
-tag=[]
 
 if cell_type == 6:
     comb=tuple(((0,1,2,3),(0,1,4,5),(1,2,5,6),(0,3,4,7),(2,3,6,7),(4,5,6,7)))#list of face in one cell(default connectivity in tecplot)
@@ -136,7 +135,7 @@ for i in range(len(tag2)):
 
 
 meshdim=3
-with open('intermediate/1.msh','w') as c:
+with open('intermediate/1.msh','w') as c:#store modified .msh file
     print(meshdim,file=c)
     print(num_nodes,file=c)
     for i in range(1,num_nodes+1):
@@ -146,11 +145,11 @@ with open('intermediate/1.msh','w') as c:
     for i in range(1,len(tag2)+1):
         print(' '.join(map(str,face_info[i,:])),' '.join(map(str,face_cell[i,:])),file=c)
 
-with open('INFILES/internal_field/temp.in','w') as d:
+with open('INFILES/internal_field/temp.in','w') as d:#temperature field
     for i in range(1,num_cells+1):
         print(i,cell_info[i][3],file=d)
 
-with open('INFILES/internal_field/concentration_co2.in','w') as e:
+with open('INFILES/internal_field/concentration_co2.in','w') as e:#species concentration field
     for i in range(1,num_cells+1):
         print(i,cell_info[i][4],file=e)
 
