@@ -133,6 +133,17 @@ for i in range(len(tag2)):
         face_cell[i+1][0]=d[tag2[i]][0]
         face_cell[i+1][1]=d[tag2[i]][1]
 
+num_faces=len(tag2)
+#cell_face=np.zeros((num_cells+1,cell_type),dtype=np.int)
+cell_face=[[] for i in range(num_cells+1)]
+for i in range(1,num_faces+1):
+    for j in range(2):
+        #np.append(cell_face[face_cell[i][j]],i)
+        #print(face_cell[i][j])
+        cell_face[face_cell[i][j]].append(i)
+
+print(cell_face)
+
 
 meshdim=3
 with open('intermediate/1.msh','w') as c:#store modified .msh file
@@ -141,8 +152,8 @@ with open('intermediate/1.msh','w') as c:#store modified .msh file
     for i in range(1,num_nodes+1):
         print(node_info[i][0],node_info[i][1],node_info[i][2],file=c)
     print(num_cells,file=c)
-    print(len(tag2),file=c)
-    for i in range(1,len(tag2)+1):
+    print(num_faces,file=c)
+    for i in range(1,num_faces+1):
         print(' '.join(map(str,face_info[i,:])),' '.join(map(str,face_cell[i,:])),file=c)
 
 with open('INFILES/internal_field/temp.in','w') as d:#temperature field
@@ -157,6 +168,9 @@ with open('INFILES/internal_field/concentration_h2o.in','w') as f:
     for i in range(1,num_cells+1):
         print(i,cell_info[i][5],file=f)
 
+with open('INFILES/mesh/cell2face.in','w') as g:
+    for i in range(1,num_cells+1):
+        print(i,' '.join(map(str,cell_face[i][:])),file=g)
 
 end=time.process_time()
 print(' Data conversion time:',end-start)
