@@ -142,7 +142,7 @@ for i in range(1,num_faces+1):
         #print(face_cell[i][j])
         cell_face[face_cell[i][j]].append(i)
 
-print(cell_face)
+#print(cell_face)
 
 
 meshdim=3
