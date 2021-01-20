@@ -54,13 +54,7 @@ with open(filepath,'r') as f:
             cell_re = re.compile('^([0-9]*[\s]+){8}$')#cell node connectivity
         elif cell_type == 4:
             cell_re = re.compile('^([0-9]*[\s]+){4}$')
-        find_cell = bool(cell_re.match(line))
-
-        if find_float == True:
-            line=line.split(' ', 5)
-            for i in range(6):
-                node_info[nnode][i] = line[i]
-            nnode=nnode+1
+        find_cell = bool(cell_re.mat非main分支
 
         if find_nnode == True:
             line=line.split(' ',2)
@@ -139,7 +133,6 @@ cell_face=[[] for i in range(num_cells+1)]
 for i in range(1,num_faces+1):
     for j in range(2):
         #np.append(cell_face[face_cell[i][j]],i)
-        #print(face_cell[i][j])
         cell_face[face_cell[i][j]].append(i)
 
 #print(cell_face)
