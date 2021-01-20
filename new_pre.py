@@ -135,8 +135,6 @@ for i in range(1,num_faces+1):
         #np.append(cell_face[face_cell[i][j]],i)
         cell_face[face_cell[i][j]].append(i)
 
-#print(cell_face)
-
 
 meshdim=3
 with open('intermediate/1.msh','w') as c:#store modified .msh file
