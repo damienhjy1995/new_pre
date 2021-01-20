@@ -54,7 +54,7 @@ with open(filepath,'r') as f:
             cell_re = re.compile('^([0-9]*[\s]+){8}$')#cell node connectivity
         elif cell_type == 4:
             cell_re = re.compile('^([0-9]*[\s]+){4}$')
-        find_cell = bool(cell_re.mat非main分支
+        find_cell = bool(cell_re.match(line))
 
         if find_nnode == True:
             line=line.split(' ',2)
