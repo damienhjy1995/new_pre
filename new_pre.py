@@ -16,6 +16,7 @@ def coplan(a,b,c,d):#function to judge if the 4 points are coplan(not used)
 start = time.process_time()
 nnode=1
 ncell=1
+num=1
 face_max=1000000
 
 curdir=os.getcwd()
@@ -73,6 +74,12 @@ with open(filepath,'r') as f:
             for i in range(1,cell_num_node+1):
                 cell_node[ncell][i-1]=int(line[i-1])#cell_node connectivity
             ncell=ncell+1
+
+        if find_float == True:
+            line=line.split(' ',5)
+            for j in range(6):
+                node_info[num][j]=line[j]
+            num=num+1
 
 #nodal value to cell-centered value
 cell_info=np.zeros((num_cells+1,6))
